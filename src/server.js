@@ -14,7 +14,7 @@ server.use(express.urlencoded({ extended: true }))
 const nunjucks = require("nunjucks")
 nunjucks.configure("src/views", {
   express: server,
-  noCache: true
+  noCache: true,
 })
 
 //configurar caminhos na minha aplicação
@@ -26,7 +26,6 @@ server.get("/", (req, res) => {
 })
 
 server.get("/create-point", (req, res) => {
-  
   //req.query: Query Strings da URL
   //console.log(req.query)
 
@@ -51,17 +50,17 @@ server.post("/savepoint", (req, res) => {
   `
 
   const values = [
-      req.body.image,
-      req.body.name,
-      req.body.address,
-      req.body.address2,
-      req.body.state,
-      req.body.city,
-      req.body.items
-    ]
+    req.body.image,
+    req.body.name,
+    req.body.address,
+    req.body.address2,
+    req.body.state,
+    req.body.city,
+    req.body.items,
+  ]
 
   function afterInsertData(err) {
-    if(err) {
+    if (err) {
       console.log(err)
       return res.send("Erro no cadastro!")
     }
@@ -69,36 +68,58 @@ server.post("/savepoint", (req, res) => {
     console.log("Cadastrado com sucesso")
     console.log(this)
 
-    return res.render("create-point.njk", { saved : true })
+    return res.render("create-point.njk", { saved: true })
   }
 
   db.run(query, values, afterInsertData)
-
 })
 
-
 server.get("/search", (req, res) => {
-
   const search = req.query.search
 
-  if(search == "") {
-    //pesquisa vazia
-    return res.render("search-results.njk", { total: 0})
+  if (search == "") {
+    //pesquisa vazia (pega todos os cadastros)
+    db.all(`SELECT * FROM places`, function (err, rows) {
+      if (err) {
+        return console.log(err)
+      }
+
+      const total = rows.length
+
+      //mostrar html com dados do db
+      return res.render("search-results.njk", { places: rows, total: total })
+    })
+    //return res.render("search-results.njk", { total: 0 })
+  } else {
+    db.all(
+      `SELECT * FROM places WHERE city LIKE '%${search}%'`,
+      function (err, rows) {
+        if (err) {
+          return console.log(err)
+        }
+
+        const total = rows.length
+
+        //mostrar html com dados do db
+        return res.render("search-results.njk", { places: rows, total: total })
+      }
+    )
   }
 
+  //pegar dados do db (foi colocado dentro do else)
+  // db.all(
+  //   `SELECT * FROM places WHERE city LIKE '%${search}%'`,
+  //   function (err, rows) {
+  //     if (err) {
+  //       return console.log(err)
+  //     }
 
+  //     const total = rows.length
 
-  //pegar dados do db
-  db.all(`SELECT * FROM places WHERE city LIKE '%${search}%'`, function(err, rows) {
-    if(err) {
-      return console.log(err)
-    }
-
-    const total = rows.length
-
-    //mostrar html com dados do db
-    return res.render("search-results.njk", { places: rows, total: total })
-  })
+  //     //mostrar html com dados do db
+  //     return res.render("search-results.njk", { places: rows, total: total })
+  //   }
+  // )
 })
 
 //ligar o servidor
