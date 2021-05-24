@@ -4,7 +4,7 @@ O Ecoleta é um site de criação e buscagem de pontos de coletas de resíduos p
 
 A escolha desse tema foi devido ao projeto ser criado durante a semana do meio ambiente.
 
-![landing-page](public/assets/home-background.svg)
+![landing-page](public/assets/README.png)
 
 ## Tecnologias usadas
 
